@@ -1,0 +1,17 @@
+﻿<Window x:Class="MyScreenshotAssistant2.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MyScreenshotAssistant2"
+        xmlns:extk="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
+        mc:Ignorable="d"
+        Title="MyScreenshotAssistant2 - Login" Height="209.11" Width="332.415" WindowStyle="ToolWindow" Background="White">
+    <Grid>
+        <TextBox x:Name="OAuth_url_Textbox" Height="23" Margin="10,10,60,0" VerticalAlignment="Top" FontFamily="Meiryo UI" FontSize="14" IsReadOnly="True"/>
+        <extk:WatermarkTextBox x:Name="OAuth_pin_Textbox" Margin="10,38,10,48" Watermark="PIN Code" FontFamily="Meiryo UI" FontSize="48" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" MaxLength="7" KeyDown="OAuth_pin_Textbox_KeyDown"/>
+        <Button x:Name="OAuth_url_open_Button" Content="開く" Margin="0,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="45" Height="23" Click="OAuth_url_open_Button_Click"/>
+        <Button x:Name="OAuth_Button" Content="認証" Margin="10,0,10,10" Height="33" VerticalAlignment="Bottom" Click="OAuth_Button_Click"/>
+
+    </Grid>
+</Window>

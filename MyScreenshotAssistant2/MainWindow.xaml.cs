@@ -306,7 +306,7 @@ namespace MyScreenshotAssistant2
             // アカウント情報を保存
             try
             {
-                Method.AccountTable.Columns.RemoveAt(0);
+                Method.AccountTable.Rows.RemoveAt(0);
 
                 SQLiteCommandBuilder builder = new SQLiteCommandBuilder(Method.AccountAdapter);
                 builder.GetUpdateCommand();

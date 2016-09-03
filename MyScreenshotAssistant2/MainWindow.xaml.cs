@@ -1,5 +1,6 @@
 ﻿using CoreTweet;
 using System;
+using System.Data;
 using System.Data.SQLite;
 using System.Drawing;
 using System.IO;
@@ -40,9 +41,7 @@ namespace MyScreenshotAssistant2
             Method.sql_login();
 
             Update.Start();
-
-            Method.AccountTable.Columns.Add("アカウントを追加");
-
+            
             // アカウントデータの復元
             Method.AccountAdapter = new SQLiteDataAdapter("SELECT * FROM Account", Method.database);
             Method.AccountAdapter.Fill(Method.AccountTable);
@@ -50,6 +49,10 @@ namespace MyScreenshotAssistant2
             Twitter_id.ItemsSource = Method.AccountTable.DefaultView;
             Twitter_id.DisplayMemberPath = "UserId";
             Twitter_id.SelectedValuePath = "UserId";
+
+            DataRow datarow = Method.AccountTable.NewRow();
+            datarow["UserId"] = "アカウントを追加";
+            Method.AccountTable.Rows.InsertAt(datarow, 0);
 
             // ディレクトリデータの復元
             Method.DirectoryAdapter = new SQLiteDataAdapter("SELECT * FROM DirectoryData", Method.database);

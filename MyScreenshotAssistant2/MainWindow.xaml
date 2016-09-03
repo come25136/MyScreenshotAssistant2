@@ -8,7 +8,7 @@
 	xmlns:extk="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
 	xmlns:tb="http://www.hardcodet.net/taskbar"
 	mc:Ignorable="d"
-	Title="MyScreenshotAssistant" Height="366" Width="526" WindowStyle="ToolWindow" Closing="Window_Closing">
+	Title="MyScreenshotAssistant" Height="536" Width="526" WindowStyle="ToolWindow" Closing="Window_Closing" MinWidth="526" MinHeight="536">
 
 	<Window.Resources>
 		<ControlTemplate x:Key="ComboBoxToggleButton" TargetType="{x:Type ToggleButton}">
@@ -233,7 +233,12 @@
 		<TabControl x:Name="tabControl" Margin="0,0,-1,0" BorderBrush="#FFACACAC">
 			<TabItem Header="メイン" Margin="-2,-2,-1,0" Foreground="Black" BorderBrush="#FFACACAC" Background="White">
 				<Grid>
-					<ProgressBar x:Name="ProgressBar" Height="5" VerticalAlignment="Top" Background="{x:Null}" BorderBrush="{x:Null}" Margin="-2" IsIndeterminate="True" BorderThickness="0" Visibility="Hidden">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="370*"/>
+						<RowDefinition Height="62*"/>
+						<RowDefinition Height="47*"/>
+					</Grid.RowDefinitions>
+					<ProgressBar x:Name="ProgressBar" Height="5" VerticalAlignment="Top" Background="{x:Null}" BorderBrush="{x:Null}" Margin="-2,-2,-2,0" IsIndeterminate="True" BorderThickness="0" Visibility="Hidden">
 						<ProgressBar.Foreground>
 							<LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
 								<LinearGradientBrush.RelativeTransform>
@@ -249,13 +254,26 @@
 							</LinearGradientBrush>
 						</ProgressBar.Foreground>
 					</ProgressBar>
-					<Image x:Name="Twitter_icon_Image" Margin="10,10,0,0" Stretch="Fill" HorizontalAlignment="Left" Width="64" Height="64" VerticalAlignment="Top" Source="{Binding AccountIcon}"/>
+
+					<Border Margin="10,10,0,0" CornerRadius="10" HorizontalAlignment="Left" Width="64" Height="64" VerticalAlignment="Top">
+						<Border.Background>
+							<ImageBrush x:Name="Twitter_icon_Image" ImageSource="{Binding AccountIcon}"/>
+						</Border.Background>
+					</Border>
 
 					<ComboBox Margin="0,10,10,0" x:Name="Twitter_id" VerticalAlignment="Top" Height="26" ItemsSource="{Binding}" RenderTransformOrigin="0.5,0.5" VerticalContentAlignment="Center" Padding="3,1" FontSize="16" FontWeight="Thin" SelectionChanged="Twitter_id_SelectionChanged" Width="142" HorizontalAlignment="Right"/>
 					<extk:WatermarkTextBox x:Name="Tweet_fixed_value_TextBox" Height="33" Margin="90,41,10,0" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="18" FontFamily="Meiryo UI" Background="{x:Null}" BorderBrush="#E0E0E0E0" SelectionBrush="{x:Null}" Watermark="Tweets content (fixed)" TextDecorations="{x:Null}"/>
-					<ToggleButton x:Name="Tweet_Button" Style="{StaticResource Tweet_Button}" Margin="0,0,10,41" Background="#FFA5E2FF" Height="40" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="112" Click="Tweet_Button_Click"/>
-					<ComboBox x:Name="Directory_name_ComboBox" Margin="10,0,153,10" Height="26" VerticalAlignment="Bottom"/>
-					<ToggleButton x:Name="Mode_Button" Style="{StaticResource Mode_Button}" Margin="0,0,10,10" Background="#FFF0F0F0" Height="26" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="112"/>
+					<Border Margin="10,84,10,7" CornerRadius="10">
+						<Border.Background>
+							<ImageBrush x:Name="Preview_Image" Stretch="Uniform"/>
+						</Border.Background>
+					</Border>
+					<ToggleButton x:Name="Tweet_Button" Style="{StaticResource Tweet_Button}" Margin="0,8,10,10" Background="#FFA5E2FF" Click="Tweet_Button_Click" Grid.Row="1" HorizontalAlignment="Right" Width="112"/>
+
+					<Separator Margin="5,52,5,36" Foreground="Black" Background="#FFE0E0E0" Grid.RowSpan="2" Grid.Row="1" />
+
+					<ComboBox x:Name="Directory_name_ComboBox" Margin="10,0,153,10" Height="26" VerticalAlignment="Bottom" Grid.Row="2" SelectionChanged="Directory_name_ComboBox_SelectionChanged"/>
+					<ToggleButton x:Name="Mode_Button" Style="{StaticResource Mode_Button}" Margin="0,10,10,10" Background="#FFF0F0F0" Grid.Row="2" HorizontalAlignment="Right" Width="112"/>
 					<Label x:Name="Twitter_name" Height="26" Margin="90,10,157,0" VerticalAlignment="Top" FontSize="16" VerticalContentAlignment="Center" Width="auto" Content="{Binding AccountName}" Background="{x:Null}" BorderBrush="{x:Null}" Padding="2" FontWeight="Bold" />
 
 				</Grid>

@@ -420,5 +420,25 @@ namespace MyScreenshotAssistant2
             }
             catch (System.IndexOutOfRangeException) { }
         }
+
+        private async void Directory_name_ComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            await Dispatcher.InvokeAsync(() =>
+            {
+                try
+                {
+                    var bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = new Uri(Directory_name_ComboBox.SelectedValue + "\\" + Method.getNewestFileName(Convert.ToString(Directory_name_ComboBox.SelectedValue)));
+                    bitmap.EndInit();
+                    bitmap.Freeze();
+
+                    Preview_Image.ImageSource = bitmap;
+                }
+                catch (Exception)
+                {
+                }
+            });
+        }
     }
 }

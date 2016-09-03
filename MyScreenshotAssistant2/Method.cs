@@ -2,9 +2,6 @@
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
-using System.Net;
-using System.Net.Cache;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
 
@@ -22,9 +19,9 @@ namespace MyScreenshotAssistant2
         public static SQLiteCommand statement = null;
         public static SQLiteDataReader reader = null;
 
-        /// <summary>
-        /// MessageBox
-        /// </summary>
+        /// <summary>MessageBox</summary>
+        /// <param name="title">ダイアログタイトルを指定</param>
+        /// <param name="value">ダイアログに表示する内容を指定</param>
 
         // MessageBoxのコード省略化
         public static void message(string title, string value)
@@ -37,9 +34,9 @@ namespace MyScreenshotAssistant2
             return;
         }
 
-        /// <summary>
-        /// Make log file
-        /// </summary>
+        /// <summary>Write log file</summary>
+        /// <param name="level">エラーレベルを指定</param>
+        /// <param name="value">エラー内容を指定</param>
 
         // ログファイルへ記入
         public static void logfile(string level, string value)
@@ -52,10 +49,9 @@ namespace MyScreenshotAssistant2
             catch (Exception) { }
         }
 
-        /// <summary>
-        /// Login SQLite
-        /// </summary>
-        /// 
+        /// <summary>SQLite Logine</summary>
+
+        // sqlのログイン処理
         public static void sql_login()
         {
             try
@@ -74,10 +70,10 @@ namespace MyScreenshotAssistant2
             }
         }
 
-        /// <summary>
-        /// sql SQLite
-        /// </summary>
+        /// <summary>SQLite sql</summary>
+        /// <param name="value">sql文を指定</param>
 
+        // sql文の実行
         public static void sql(string value)
         {
             try
@@ -91,10 +87,11 @@ namespace MyScreenshotAssistant2
             }
         }
 
-        /// <summary>
-        /// sql_reader SQLite
-        /// </summary>
+        /// <summary>SQLite sql_reader</summary>
+        /// <param name="value">sql文を指定</param>
+        /// <returns>sqlの実行結果を返します</returns>
 
+        // sql文の実行
         public static SQLiteDataReader sql_reader(string value)
         {
             try
@@ -110,6 +107,34 @@ namespace MyScreenshotAssistant2
             finally
             {
                 statement.Dispose();
+            }
+        }
+
+        /// <summary>フォルダ内の最新pngファイルのファイル名を取得</summary>
+        /// <param name="folderName">フォルダ名を指定</param>
+        /// <returns>最新のpngファイルのファイル名を返します</returns>
+        public static string getNewestFileName(string folderName)
+        {
+            try
+            {
+                string[] files = System.IO.Directory.GetFiles(folderName, "*.png", System.IO.SearchOption.TopDirectoryOnly);
+
+                string newestFileName = string.Empty;
+                System.DateTime updateTime = System.DateTime.MinValue;
+                foreach (string file in files)
+                {
+                    System.IO.FileInfo fi = new System.IO.FileInfo(file);
+                    if (fi.LastWriteTime > updateTime)
+                    {
+                        updateTime = fi.LastWriteTime;
+                        newestFileName = file;
+                    }
+                }
+                return Path.GetFileName(newestFileName);
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
     }

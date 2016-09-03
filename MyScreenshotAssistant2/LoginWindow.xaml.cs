@@ -1,8 +1,6 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 using System.Text.RegularExpressions;
 using System.Windows;
-using System.Windows.Forms;
 
 namespace MyScreenshotAssistant2
 {

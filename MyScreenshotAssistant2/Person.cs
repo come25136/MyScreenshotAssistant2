@@ -8,4 +8,10 @@ namespace MyScreenshotAssistant2
         public BitmapImage AccountIcon { get; set; }
         public string AccountName { get; set; }
     }
+
+    class update
+    {
+        public string new_version { get; set; }
+        public string current_version { get; set; }
+    }
 }

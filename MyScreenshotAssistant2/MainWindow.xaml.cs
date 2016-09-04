@@ -73,6 +73,8 @@ namespace MyScreenshotAssistant2
         // アカウント選択
         private async void Twitter_id_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
+            Dispatcher.Invoke(() => { ProgressBar.Visibility = Visibility.Visible; });
+
             if (Dispatcher.Invoke(() => { return Twitter_id.SelectedValue.ToString(); }) == "アカウントを追加")
             {
                 Dispatcher.Invoke(() =>
@@ -80,6 +82,8 @@ namespace MyScreenshotAssistant2
                     LoginWindow LoginWindow = new LoginWindow();
                     LoginWindow.OAuth_url();
                     LoginWindow.ShowDialog();
+
+                    Dispatcher.Invoke(() => { ProgressBar.Visibility = Visibility.Hidden; });
                 });
                 return;
             }
@@ -129,7 +133,7 @@ namespace MyScreenshotAssistant2
                 })
             };
 
-            await Dispatcher.InvokeAsync(() => { ProgressBar.Visibility = Visibility.Hidden; });
+            Dispatcher.Invoke(() => { ProgressBar.Visibility = Visibility.Hidden; });
         }
 
         // Start, Stopボタン
@@ -299,6 +303,7 @@ namespace MyScreenshotAssistant2
             {
                 Properties.Settings.Default.Twitter_id = Twitter_id.Text;
             }
+
             Properties.Settings.Default.Tweet_fixed_value = Tweet_fixed_value_TextBox.Text;
             Properties.Settings.Default.Directory_name = Directory_name_ComboBox.Text;
             Properties.Settings.Default.Save();

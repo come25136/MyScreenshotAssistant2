@@ -19,6 +19,8 @@ namespace MyScreenshotAssistant2
 
             Activate();
 
+            Tweet_value_TextBox.Focus();
+
             cancel_flag = true;
         }
 

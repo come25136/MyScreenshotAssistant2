@@ -100,7 +100,7 @@ namespace MyScreenshotAssistant2
                     {
                         var image = new BitmapImage();
                         image.BeginInit();
-                        image.StreamSource = new MemoryStream(wc.DownloadData(tokens.Account.VerifyCredentials().ProfileImageUrlHttps));
+                        image.StreamSource = new MemoryStream(wc.DownloadData(tokens.Account.VerifyCredentials().ProfileImageUrlHttps.Replace("normal", "bigger")));
                         image.EndInit();
                         image.Freeze();
 

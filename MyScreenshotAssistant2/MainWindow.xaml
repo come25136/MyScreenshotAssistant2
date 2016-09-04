@@ -262,32 +262,35 @@
 					</Border>
 
 					<ComboBox Margin="0,10,10,0" x:Name="Twitter_id" VerticalAlignment="Top" Height="26" ItemsSource="{Binding}" RenderTransformOrigin="0.5,0.5" VerticalContentAlignment="Center" Padding="3,1" FontSize="16" FontWeight="Thin" SelectionChanged="Twitter_id_SelectionChanged" Width="142" HorizontalAlignment="Right"/>
-					<extk:WatermarkTextBox x:Name="Tweet_fixed_value_TextBox" Height="33" Margin="90,41,10,0" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="18" FontFamily="Meiryo UI" Background="{x:Null}" BorderBrush="#E0E0E0E0" SelectionBrush="{x:Null}" Watermark="Tweets content (fixed)" TextDecorations="{x:Null}"/>
+					<extk:WatermarkTextBox x:Name="Tweet_fixed_value_TextBox" Height="33" Margin="90,41,10,0" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="18" FontFamily="Meiryo UI" Background="{x:Null}" BorderBrush="#E0E0E0E0" SelectionBrush="{x:Null}" Watermark="Tweets content (fixed)" TextDecorations="{x:Null}" VerticalContentAlignment="Center"/>
 					<Border Margin="10,84,10,7" CornerRadius="10">
 						<Border.Background>
 							<ImageBrush x:Name="Preview_Image" Stretch="Uniform"/>
 						</Border.Background>
 					</Border>
-					<ToggleButton x:Name="Tweet_Button" Style="{StaticResource Tweet_Button}" Margin="0,8,10,10" Background="#FFA5E2FF" Click="Tweet_Button_Click" Grid.Row="1" HorizontalAlignment="Right" Width="112"/>
 
-					<Separator Margin="5,52,5,36" Foreground="Black" Background="#FFE0E0E0" Grid.RowSpan="2" Grid.Row="1" />
+					<extk:WatermarkTextBox x:Name="Tweet_Hashtag_value_TextBox" Height="42" Margin="10,0,144,10" TextWrapping="Wrap" VerticalAlignment="Bottom" FontSize="18" FontFamily="Meiryo UI" Background="{x:Null}" BorderBrush="#E0E0E0E0" SelectionBrush="{x:Null}" Watermark="#hashtag" TextDecorations="{x:Null}" Grid.Row="1" VerticalContentAlignment="Center"/>
 
-					<ComboBox x:Name="Directory_name_ComboBox" Margin="10,0,153,10" Height="26" VerticalAlignment="Bottom" Grid.Row="2" SelectionChanged="Directory_name_ComboBox_SelectionChanged"/>
-					<ToggleButton x:Name="Mode_Button" Style="{StaticResource Mode_Button}" Margin="0,10,10,10" Background="#FFF0F0F0" Grid.Row="2" HorizontalAlignment="Right" Width="112"/>
+					<ToggleButton x:Name="Tweet_Button" Style="{StaticResource Tweet_Button}" Margin="0,0,10,10" Background="#FFA5E2FF" Click="Tweet_Button_Click" Grid.Row="1" HorizontalAlignment="Right" Width="112" Height="42" VerticalAlignment="Bottom"/>
+
+					<Separator Margin="5,0,5,36" Foreground="Black" Background="#FFE0E0E0" Grid.RowSpan="2" Grid.Row="1" Height="21" VerticalAlignment="Bottom" />
+
+					<ComboBox x:Name="Directory_name_ComboBox" Margin="10,0,144,10" Height="26" VerticalAlignment="Bottom" Grid.Row="2" SelectionChanged="Directory_name_ComboBox_SelectionChanged"/>
+					<ToggleButton x:Name="Mode_Button" Style="{StaticResource Mode_Button}" Margin="0,0,10,10" Background="#FFF0F0F0" Grid.Row="2" HorizontalAlignment="Right" Width="112" Height="27" VerticalAlignment="Bottom"/>
 					<Label x:Name="Twitter_name" Height="26" Margin="90,10,157,0" VerticalAlignment="Top" FontSize="16" VerticalContentAlignment="Center" Width="auto" Content="{Binding AccountName}" Background="{x:Null}" BorderBrush="{x:Null}" Padding="2" FontWeight="Bold" />
 
 				</Grid>
 			</TabItem>
-			<TabItem Header="ディレクトリ設定" Margin="-1,-2,-1,0" Background="White" Foreground="Black">
-				<Grid>
-					<DataGrid x:Name="DirectoryData_DataGrid" EnableRowVirtualization="True" ItemsSource="{Binding}" RowDetailsVisibilityMode="VisibleWhenSelected" HeadersVisibility="Column" Background="{x:Null}" Margin="-2" AutoGenerateColumns="False" ContextMenu="{DynamicResource menuListBox}">
-						<DataGrid.Columns>
-							<DataGridTextColumn x:Name="nameColumn" Binding="{Binding name}" Header="name" Width="SizeToHeader" MinWidth="160" Foreground="Black"/>
-							<DataGridTextColumn x:Name="pathColumn" Binding="{Binding path}" Header="path" Width="SizeToHeader" MinWidth="347"/>
-						</DataGrid.Columns>
-					</DataGrid>
-				</Grid>
-			</TabItem>
-		</TabControl>
+            <TabItem Header="ディレクトリ設定" Margin="-1,-2,-1,0" Background="White" Foreground="Black">
+                <Grid>
+                    <DataGrid x:Name="DirectoryData_DataGrid" EnableRowVirtualization="True" ItemsSource="{Binding}" RowDetailsVisibilityMode="VisibleWhenSelected" HeadersVisibility="Column" Background="{x:Null}" Margin="-2" AutoGenerateColumns="False" ContextMenu="{DynamicResource menuListBox}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn x:Name="nameColumn" Binding="{Binding name}" Header="name" Width="SizeToHeader" MinWidth="160" Foreground="Black"/>
+                            <DataGridTextColumn x:Name="pathColumn" Binding="{Binding path}" Header="path" Width="SizeToHeader" MinWidth="347"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+        </TabControl>
 	</Grid>
 </Window>

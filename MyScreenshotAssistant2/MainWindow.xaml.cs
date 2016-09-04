@@ -41,7 +41,7 @@ namespace MyScreenshotAssistant2
             Method.sql_login();
 
             Update.Start();
-            
+
             // アカウントデータの復元
             Method.AccountAdapter = new SQLiteDataAdapter("SELECT * FROM Account", Method.database);
             Method.AccountAdapter.Fill(Method.AccountTable);
@@ -73,7 +73,7 @@ namespace MyScreenshotAssistant2
         // アカウント選択
         private async void Twitter_id_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            if (await Dispatcher.InvokeAsync(() => { return Twitter_id.SelectedValue.ToString(); }) == "アカウントを追加")
+            if (Dispatcher.Invoke(() => { return Twitter_id.SelectedValue.ToString(); }) == "アカウントを追加")
             {
                 Dispatcher.Invoke(() =>
                 {
@@ -245,7 +245,7 @@ namespace MyScreenshotAssistant2
                             MediaUploadResult file = tokens.Media.Upload(media: new FileStream(e.FullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
 
                             await tokens.Statuses.UpdateAsync(
-                                status: (Dispatcher.Invoke(() => { return Tweet_fixed_value_TextBox.Text.Replace(@"\n", "\n") + TweetWindow.value; })),
+                                status: (Dispatcher.Invoke(() => { return Tweet_fixed_value_TextBox.Text.Replace(@"\n", "\n") + TweetWindow.value + Tweet_Hashtag_value_TextBox.Text.Replace(@"\n", "\n"); })),
                                 media_ids: new long[] { file.MediaId }
                             );
                             Method.logfile("Info", "Success tweet.");
@@ -418,7 +418,7 @@ namespace MyScreenshotAssistant2
             {
                 Method.DirectoryTable.Rows.RemoveAt(DirectoryData_DataGrid.SelectedIndex);
             }
-            catch (System.IndexOutOfRangeException) { }
+            catch (Exception) { }
         }
 
         private async void Directory_name_ComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
@@ -432,12 +432,10 @@ namespace MyScreenshotAssistant2
                     bitmap.UriSource = new Uri(Directory_name_ComboBox.SelectedValue + "\\" + Method.getNewestFileName(Convert.ToString(Directory_name_ComboBox.SelectedValue)));
                     bitmap.EndInit();
                     bitmap.Freeze();
-
+                    
                     Preview_Image.ImageSource = bitmap;
                 }
-                catch (Exception)
-                {
-                }
+                catch (Exception) { }
             });
         }
     }

@@ -11,6 +11,8 @@
 	Title="MyScreenshotAssistant" Height="536" Width="526" WindowStyle="ToolWindow" Closing="Window_Closing" MinWidth="526" MinHeight="536">
 
 	<Window.Resources>
+
+		<!-- ComboBox -->
 		<ControlTemplate x:Key="ComboBoxToggleButton" TargetType="{x:Type ToggleButton}">
 			<Grid>
 				<Grid.ColumnDefinitions>
@@ -38,14 +40,14 @@
 
 			<ControlTemplate.Triggers>
 				<Trigger Property="ToggleButton.IsMouseOver" Value="true">
-					<Setter TargetName="Border" Property="Background" Value="#E0E0E0" />
+					<Setter TargetName="Border" Property="Background" Value="#FF999999" />
 				</Trigger>
 				<Trigger Property="ToggleButton.IsChecked" Value="true">
-					<Setter TargetName="Border" Property="Background" Value="#E0E0E0" />
+					<Setter TargetName="Border" Property="Background" Value="#FF999999" />
 				</Trigger>
 				<Trigger Property="IsEnabled" Value="False">
 					<Setter TargetName="Border" Property="Background" Value="#EEEEEE" />
-					<Setter TargetName="Border" Property="BorderBrush" Value="#E0E0E0" />
+					<Setter TargetName="Border" Property="BorderBrush" Value="#FF999999" />
 					<Setter Property="Foreground" Value="#888888"/>
 					<Setter TargetName="Arrow" Property="Fill" Value="#888888" />
 				</Trigger>
@@ -70,7 +72,7 @@
 							<Border
 								Background="#FFFFFF"
 								BorderThickness="0,0,0,1"
-								BorderBrush="#E0E0E0" />
+								BorderBrush="#FF999999" />
 
 							<ToggleButton 
 								Name="ToggleButton" 
@@ -123,7 +125,7 @@
 										x:Name="DropDownBorder"
 										Background="#FFFFFF"
 										BorderThickness="1"
-										BorderBrush="#E0E0E0" />
+										BorderBrush="#FF999999" />
 									<ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True" TextOptions.TextFormattingMode="Display">
 										<StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" />
 									</ScrollViewer>
@@ -182,19 +184,319 @@
 			</Setter>
 		</Style>
 
-		<DataTemplate x:Key="BlueBackground">
-			<Grid Background="Blue" >
-				<TextBlock
-					HorizontalAlignment="Center"
-					VerticalAlignment="Center"
-					TextAlignment="Center"
-					Text="{Binding}"/>
+		<!-- TextBox Scrollbar -->
+
+		<SolidColorBrush x:Key="StandardBorderBrush" Color="#888" />
+		<SolidColorBrush x:Key="StandardBackgroundBrush" Color="Black" />
+		<SolidColorBrush x:Key="HoverBorderBrush" Color="#DDD" />
+		<SolidColorBrush x:Key="SelectedBackgroundBrush" Color="Gray" />
+		<SolidColorBrush x:Key="SelectedForegroundBrush" Color="White" />
+		<SolidColorBrush x:Key="DisabledForegroundBrush" Color="#888" />
+		<SolidColorBrush x:Key="NormalBrush" Color="#888" />
+		<SolidColorBrush x:Key="NormalBorderBrush" Color="#888" />
+		<SolidColorBrush x:Key="HorizontalNormalBrush" Color="#FF999999" />
+		<SolidColorBrush x:Key="HorizontalNormalBorderBrush" Color="#888" />
+		<LinearGradientBrush x:Key="ListBoxBackgroundBrush"
+
+			StartPoint="0,0" EndPoint="1,0.001">
+			<GradientBrush.GradientStops>
+				<GradientStopCollection>
+					<GradientStop Color="White" Offset="0.0" />
+					<GradientStop Color="White" Offset="0.6" />
+					<GradientStop Color="#DDDDDD" Offset="1.2"/>
+				</GradientStopCollection>
+			</GradientBrush.GradientStops>
+		</LinearGradientBrush>
+		<LinearGradientBrush x:Key="StandardBrush"
+
+			StartPoint="0,0" EndPoint="0,1">
+			<GradientBrush.GradientStops>
+				<GradientStopCollection>
+					<GradientStop Color="#FFF" Offset="0.0"/>
+					<GradientStop Color="#CCC" Offset="1.0"/>
+				</GradientStopCollection>
+			</GradientBrush.GradientStops>
+		</LinearGradientBrush>
+		<SolidColorBrush x:Key="GlyphBrush" Color="#444" />
+		<LinearGradientBrush x:Key="PressedBrush"
+
+			StartPoint="0,0" EndPoint="0,1">
+			<GradientBrush.GradientStops>
+				<GradientStopCollection>
+					<GradientStop Color="#BBB" Offset="0.0"/>
+					<GradientStop Color="#EEE" Offset="0.1"/>
+					<GradientStop Color="#EEE" Offset="0.9"/>
+					<GradientStop Color="#FFF" Offset="1.0"/>
+				</GradientStopCollection>
+			</GradientBrush.GradientStops>
+		</LinearGradientBrush>
+
+		<Style x:Key="ScrollBarLineButton" TargetType="{x:Type RepeatButton}">
+			<Setter Property="Visibility" Value="Hidden"/>
+			<Setter Property="SnapsToDevicePixels" Value="True"/>
+			<Setter Property="OverridesDefaultStyle" Value="true"/>
+			<Setter Property="Focusable" Value="false"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type RepeatButton}">
+						<Border
+		  Name="Border"
+
+		  Margin="1"
+
+		  CornerRadius="2"
+
+		  Background="{StaticResource NormalBrush}"
+		  BorderBrush="{StaticResource NormalBorderBrush}"
+		  BorderThickness="1">
+							<Path
+			HorizontalAlignment="Center"
+
+			VerticalAlignment="Center"
+
+			Fill="{StaticResource GlyphBrush}"
+			Data="{Binding Path=Content,
+
+				RelativeSource={RelativeSource TemplatedParent}}" />
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsPressed" Value="true">
+								<Setter TargetName="Border" Property="Background"
+
+								Value="{StaticResource PressedBrush}" />
+							</Trigger>
+							<Trigger Property="IsEnabled" Value="false">
+								<Setter Property="Foreground"
+
+								Value="{StaticResource DisabledForegroundBrush}"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+		<Style x:Key="ScrollBarPageButton" TargetType="{x:Type RepeatButton}">
+			<Setter Property="Visibility" Value="Hidden"/>
+			<Setter Property="SnapsToDevicePixels" Value="True"/>
+			<Setter Property="OverridesDefaultStyle" Value="true"/>
+			<Setter Property="IsTabStop" Value="false"/>
+			<Setter Property="Focusable" Value="false"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type RepeatButton}">
+						<Border Background="Black" />
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+		<Style x:Key="ScrollBarThumb" TargetType="{x:Type Thumb}">
+			<Setter Property="SnapsToDevicePixels" Value="True"/>
+			<Setter Property="OverridesDefaultStyle" Value="true"/>
+			<Setter Property="IsTabStop" Value="false"/>
+			<Setter Property="Focusable" Value="false"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type Thumb}">
+						<Border
+		  CornerRadius="2"
+
+		  Background="{TemplateBinding Background}"
+		  BorderBrush="{TemplateBinding BorderBrush}"
+		  BorderThickness="0" 
+							Width="8"
+							Margin="8,0,-2,0"/>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
+		<ControlTemplate x:Key="VerticalScrollBar"
+
+			TargetType="{x:Type ScrollBar}">
+			<Grid >
+				<Grid.RowDefinitions>
+					<RowDefinition MaxHeight="0"/>
+					<RowDefinition Height="0.00001*"/>
+					<RowDefinition MaxHeight="0"/>
+				</Grid.RowDefinitions>
+				<Border
+	  Grid.RowSpan="3"
+
+	  CornerRadius="2"
+
+	  Background="Transparent" />
+				<RepeatButton
+	  Grid.Row="0"
+
+	  Style="{StaticResource ScrollBarLineButton}"
+	  Height="18"
+
+	  Command="ScrollBar.LineUpCommand"
+
+	  Content="M 0 4 L 8 4 L 4 0 Z" />
+				<Track
+	  Name="PART_Track"
+
+	  Grid.Row="1"
+
+	  IsDirectionReversed="true">
+					<Track.DecreaseRepeatButton>
+						<RepeatButton
+		  Style="{StaticResource ScrollBarPageButton}"
+		  Command="ScrollBar.PageUpCommand" />
+					</Track.DecreaseRepeatButton>
+					<Track.Thumb>
+						<Thumb
+		  Style="{StaticResource ScrollBarThumb}"
+		  Margin="1,0,1,0"
+
+		  Background="{StaticResource HorizontalNormalBrush}"
+		  BorderBrush="{StaticResource HorizontalNormalBorderBrush}" />
+					</Track.Thumb>
+					<Track.IncreaseRepeatButton>
+						<RepeatButton
+		  Style="{StaticResource ScrollBarPageButton}"
+		  Command="ScrollBar.PageDownCommand" />
+					</Track.IncreaseRepeatButton>
+				</Track>
+				<RepeatButton
+	  Grid.Row="3"
+
+	  Style="{StaticResource ScrollBarLineButton}"
+	  Height="18"
+
+	  Command="ScrollBar.LineDownCommand"
+
+	  Content="M 0 0 L 4 4 L 8 0 Z"/>
 			</Grid>
-		</DataTemplate>
+		</ControlTemplate>
+		<ControlTemplate x:Key="HorizontalScrollBar"
+
+			TargetType="{x:Type ScrollBar}">
+			<Grid >
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition MaxWidth="18"/>
+					<ColumnDefinition Width="0.00001*"/>
+					<ColumnDefinition MaxWidth="18"/>
+				</Grid.ColumnDefinitions>
+				<Border
+	  Grid.ColumnSpan="3"
+
+	  CornerRadius="2"
+
+	  Background="#F0F0F0" />
+				<RepeatButton
+	  Grid.Column="0"
+
+	  Style="{StaticResource ScrollBarLineButton}"
+	  Width="18"
+
+	  Command="ScrollBar.LineLeftCommand"
+
+	  Content="M 4 0 L 4 8 L 0 4 Z" />
+				<Track
+	  Name="PART_Track"
+
+	  Grid.Column="1"
+
+	  IsDirectionReversed="False">
+					<Track.DecreaseRepeatButton>
+						<RepeatButton
+		  Style="{StaticResource ScrollBarPageButton}"
+		  Command="ScrollBar.PageLeftCommand" />
+					</Track.DecreaseRepeatButton>
+					<Track.Thumb>
+						<Thumb
+		  Style="{StaticResource ScrollBarThumb}"
+		  Margin="0,1,0,1"
+
+		  Background="{StaticResource NormalBrush}"
+		  BorderBrush="{StaticResource NormalBorderBrush}" />
+					</Track.Thumb>
+					<Track.IncreaseRepeatButton>
+						<RepeatButton
+		  Style="{StaticResource ScrollBarPageButton}"
+		  Command="ScrollBar.PageRightCommand" />
+					</Track.IncreaseRepeatButton>
+				</Track>
+				<RepeatButton
+	  Grid.Column="3"
+
+	  Style="{StaticResource ScrollBarLineButton}"
+	  Width="18"
+
+	  Command="ScrollBar.LineRightCommand"
+
+	  Content="M 0 0 L 4 4 L 0 8 Z"/>
+			</Grid>
+		</ControlTemplate>
+		<Style x:Key="{x:Type ScrollBar}" TargetType="{x:Type ScrollBar}">
+			<Setter Property="SnapsToDevicePixels" Value="True"/>
+			<Setter Property="OverridesDefaultStyle" Value="true"/>
+			<Style.Triggers>
+				<Trigger Property="Orientation" Value="Horizontal">
+					<Setter Property="Width" Value="Auto"/>
+					<Setter Property="Height" Value="18" />
+					<Setter Property="Template"
+
+						Value="{StaticResource HorizontalScrollBar}" />
+				</Trigger>
+				<Trigger Property="Orientation" Value="Vertical">
+					<Setter Property="Width" Value="18"/>
+					<Setter Property="Height" Value="Auto" />
+					<Setter Property="Template"
+
+						Value="{StaticResource VerticalScrollBar}" />
+				</Trigger>
+			</Style.Triggers>
+		</Style>
+
+		<Style x:Key="FavsScrollViewer" TargetType="{x:Type ScrollViewer}">
+			<Setter Property="OverridesDefaultStyle" Value="True"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type ScrollViewer}">
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="Auto"/>
+								<ColumnDefinition/>
+							</Grid.ColumnDefinitions>
+							<Grid.RowDefinitions>
+								<RowDefinition/>
+								<RowDefinition Height="Auto"/>
+							</Grid.RowDefinitions>
+
+							<ScrollContentPresenter Grid.Column="1"/>
+
+							<ScrollBar Name="PART_VerticalScrollBar"
+
+			Value="{TemplateBinding VerticalOffset}"
+			Maximum="{TemplateBinding ScrollableHeight}"
+			ViewportSize="{TemplateBinding ViewportHeight}"
+			Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"/>
+							<ScrollBar Name="PART_HorizontalScrollBar"
+
+			Orientation="Horizontal"
+
+			Grid.Row="1"
+
+			Grid.Column="1"
+
+			Value="{TemplateBinding HorizontalOffset}"
+			Maximum="{TemplateBinding ScrollableWidth}"
+			ViewportSize="{TemplateBinding ViewportWidth}"
+			Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"/>
+
+						</Grid>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
+		<!-- various -->
 
 		<ControlTemplate x:Key="Tweet_Button_Template" TargetType="{x:Type ToggleButton}">
 			<Border Name="border" Margin="-2" CornerRadius="4" BorderThickness="2" Background="#FFA5E2FF">
-
 				<ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
 			</Border>
 
@@ -226,7 +528,6 @@
 		<ContextMenu x:Key="menuListBox">
 			<MenuItem Header="削除" Click="MenuItem_Click"/>
 		</ContextMenu>
-
 	</Window.Resources>
 
 	<Grid>
@@ -262,14 +563,14 @@
 					</Border>
 
 					<ComboBox Margin="0,10,10,0" x:Name="Twitter_id" VerticalAlignment="Top" Height="26" ItemsSource="{Binding}" RenderTransformOrigin="0.5,0.5" VerticalContentAlignment="Center" Padding="3,1" FontSize="16" FontWeight="Thin" SelectionChanged="Twitter_id_SelectionChanged" Width="142" HorizontalAlignment="Right"/>
-					<extk:WatermarkTextBox x:Name="Tweet_fixed_value_TextBox" Height="33" Margin="90,41,10,0" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="18" FontFamily="Meiryo UI" Background="{x:Null}" BorderBrush="#E0E0E0E0" SelectionBrush="{x:Null}" Watermark="Tweets content (fixed)" TextDecorations="{x:Null}" VerticalContentAlignment="Center"/>
+					<extk:WatermarkTextBox x:Name="Tweet_fixed_value_TextBox" Height="33" Margin="90,41,10,0" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="18" FontFamily="Meiryo UI" Background="{x:Null}" BorderBrush="#FF999999" SelectionBrush="{x:Null}" Watermark="Tweets content (fixed)" TextDecorations="{x:Null}" VerticalContentAlignment="Center" BorderThickness="0,0,0,1" Padding="3"/>
 					<Border Margin="10,84,10,7" CornerRadius="10">
 						<Border.Background>
 							<ImageBrush x:Name="Preview_Image" Stretch="Uniform"/>
 						</Border.Background>
 					</Border>
 
-					<extk:WatermarkTextBox x:Name="Tweet_Hashtag_value_TextBox" Height="42" Margin="10,0,144,10" TextWrapping="Wrap" VerticalAlignment="Bottom" FontSize="18" FontFamily="Meiryo UI" Background="{x:Null}" BorderBrush="#E0E0E0E0" SelectionBrush="{x:Null}" Watermark="#hashtag" TextDecorations="{x:Null}" Grid.Row="1" VerticalContentAlignment="Center"/>
+					<extk:WatermarkTextBox x:Name="Tweet_Hashtag_value_TextBox" Height="42" Margin="10,0,144,10" TextWrapping="Wrap" VerticalAlignment="Bottom" FontSize="18" FontFamily="Meiryo UI" Background="{x:Null}" BorderBrush="#FF999999" SelectionBrush="{x:Null}" Watermark="#hashtag" TextDecorations="{x:Null}" Grid.Row="1" VerticalContentAlignment="Center" BorderThickness="0,0,0,1"/>
 
 					<ToggleButton x:Name="Tweet_Button" Style="{StaticResource Tweet_Button}" Margin="0,0,10,10" Background="#FFA5E2FF" Click="Tweet_Button_Click" Grid.Row="1" HorizontalAlignment="Right" Width="112" Height="42" VerticalAlignment="Bottom"/>
 
@@ -281,16 +582,28 @@
 
 				</Grid>
 			</TabItem>
-            <TabItem Header="ディレクトリ設定" Margin="-1,-2,-1,0" Background="White" Foreground="Black">
-                <Grid>
-                    <DataGrid x:Name="DirectoryData_DataGrid" EnableRowVirtualization="True" ItemsSource="{Binding}" RowDetailsVisibilityMode="VisibleWhenSelected" HeadersVisibility="Column" Background="{x:Null}" Margin="-2" AutoGenerateColumns="False" ContextMenu="{DynamicResource menuListBox}">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn x:Name="nameColumn" Binding="{Binding name}" Header="name" Width="SizeToHeader" MinWidth="160" Foreground="Black"/>
-                            <DataGridTextColumn x:Name="pathColumn" Binding="{Binding path}" Header="path" Width="SizeToHeader" MinWidth="347"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
-                </Grid>
-            </TabItem>
-        </TabControl>
+			<TabItem Header="ディレクトリ" Margin="-1,-2,-1,0" Background="White" Foreground="Black">
+				<Grid>
+					<DataGrid x:Name="DirectoryData_DataGrid" EnableRowVirtualization="True" ItemsSource="{Binding}" RowDetailsVisibilityMode="VisibleWhenSelected" HeadersVisibility="Column" Background="{x:Null}" Margin="-2" AutoGenerateColumns="False" ContextMenu="{DynamicResource menuListBox}" BorderThickness="0">
+						<DataGrid.Columns>
+							<DataGridTextColumn x:Name="nameColumn" Binding="{Binding name}" Header="name" Width="SizeToHeader" MinWidth="160" Foreground="Black"/>
+							<DataGridTextColumn x:Name="pathColumn" Binding="{Binding path}" Header="path" Width="SizeToHeader" MinWidth="349"/>
+						</DataGrid.Columns>
+					</DataGrid>
+				</Grid>
+			</TabItem>
+			<TabItem Header="ショートカットキー" Margin="-1,-2,-1,0" Background="White" Foreground="Black">
+				<Grid>
+					<Label x:Name="label" Content="2枚以上の画像を撮る時に使うキー" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="16" VerticalContentAlignment="Center"/>
+					<extk:WatermarkTextBox x:Name="Next_key_TextBox" TextWrapping="Wrap" Margin="244,10,143,437" FontSize="14" VerticalContentAlignment="Center" BorderThickness="0,0,0,1" BorderBrush="#FF999999" KeyDown="textBox1_KeyDown" IsReadOnlyCaretVisible="True" Watermark="Press key" Text="LSHIFT"/>
+					<Label x:Name="label1" Content="※スクリーンショットを撮るボタンを押した直後に押してください" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" Background="White" Foreground="#FF4BA4D6" FontSize="16" FontFamily="Meiryo UI" Height="32" Width="386"/>
+				</Grid>
+			</TabItem>
+			<TabItem Header="ライセンス" Margin="-1,-2,-1,0" Background="White" Foreground="Black">
+				<Grid>
+					<TextBox x:Name="textBox" TextWrapping="Wrap" Text="License&#xA;&#xA;GPT License&#xA;------&#xA;Library license&#xA;&#xA;CoreTweet&#xA;&#xA;MIT License (MIT)&#xA;&#xA;CoreTweet - A .NET Twitter Library supporting Twitter API 1.1&#xA;copyright (c) 2013-2016 CoreTweet Development Team&#xA;https://github.com/CoreTweet/CoreTweet/blob/master/LICENSE&#xA;&#xA;Entity Framework 6.x&#xA;&#xA;Apache 2.0&#xA;&#xA;Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. Microsoft Open Technologies would like to thank its contributors, a list of whom are at https://aspnetwebstack.codeplex.com/wikipage?title=Contributors.Entity Framework is actively developed by the Entity Framework team in collaboration with a community of open source developers. Together we are dedicated to creating the best possible data access experience for .NET developers.&#xA;https://github.com/aspnet/EntityFramework6/blob/master/License.txt&#xA;&#xA;Extended WPF Toolkit&#xA;&#xA;Microsoft Public License (Ms-PL)&#xA;https://wpftoolkit.codeplex.com/license&#xA;&#xA;KeyboardMouseHooks C# Library&#xA;&#xA;MIT License (MIT)&#xA;&#xA;Copyright (c) 2011 Ramunas Geciauskas&#xA;https://keyboardmousehooks.codeplex.com/license&#xA;&#xA;Newtonsoft.Json&#xA;&#xA;MIT License (MIT)&#xA;&#xA;Copyright (c) 2007 James Newton-King&#xA;https://github.com/JamesNK/Newtonsoft.Json/blob/master/LICENSE&#xA;&#xA;SQLite&#xA;&#xA;Public License&#xA;https://www.sqlite.org/copyright.html&#xA;&#xA;SQLite Core&#xA;&#xA;Public License&#xA;https://www.sqlite.org/copyright.html&#xA;&#xA;SQLite EF6&#xA;&#xA;Public License&#xA;https://www.sqlite.org/copyright.html&#xA;&#xA;SQLite LINQ&#xA;&#xA;Public License&#xA;https://www.sqlite.org/copyright.html" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" FontSize="14" TextDecorations="{x:Null}" FontFamily="Segoe UI" IsReadOnly="True" BorderThickness="0" Margin="0" SelectionOpacity="-2"/>
+				</Grid>
+			</TabItem>
+		</TabControl>
 	</Grid>
 </Window>

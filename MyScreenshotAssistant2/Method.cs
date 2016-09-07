@@ -137,5 +137,13 @@ namespace MyScreenshotAssistant2
                 return null;
             }
         }
+
+        /// <summary>GC強制実行</summary>
+        public static void m_gc()
+        {
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+        } 
     }
 }

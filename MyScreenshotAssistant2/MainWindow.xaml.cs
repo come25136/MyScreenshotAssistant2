@@ -1,9 +1,11 @@
 ﻿using CoreTweet;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Cache;
 using System.Threading;
@@ -23,12 +25,18 @@ namespace MyScreenshotAssistant2
         private Icon[] Icons = new Icon[] { Properties.Resources.connecting1, Properties.Resources.connecting2, Properties.Resources.connecting3, Properties.Resources.connecting4 };
 
         public static string SoftwareName = System.Windows.Forms.Application.ProductName;
-        public static string version = " " + System.Windows.Forms.Application.ProductVersion;
+        public static string SoftwareTitle = SoftwareName + " ver:" + version;
+        public static string version = System.Windows.Forms.Application.ProductVersion;
 
         private Tokens tokens = null;
+        private List<FileStream> Images = new List<FileStream>();
+
         private FileSystemWatcher watcher = null;
 
         private bool IconFlag = false;
+
+        private RamGecTools.KeyboardHook keyboardHook = new RamGecTools.KeyboardHook();
+        private RamGecTools.KeyboardHook.VKeys next_key;
 
         public MainWindow()
         {
@@ -64,10 +72,22 @@ namespace MyScreenshotAssistant2
 
             DirectoryData_DataGrid.ItemsSource = Method.DirectoryTable.DefaultView;
 
+            // ユーザーデータの引き継ぎ
+            if (Properties.Settings.Default.IsUpgrade == false)
+            {
+                Properties.Settings.Default.Upgrade();
+                Properties.Settings.Default.IsUpgrade = true;
+                Properties.Settings.Default.Save();
+            }
+
             // ユーザーデータの復元
             Twitter_id.Text = Properties.Settings.Default.Twitter_id;
             Tweet_fixed_value_TextBox.Text = Properties.Settings.Default.Tweet_fixed_value;
             Directory_name_ComboBox.Text = Properties.Settings.Default.Directory_name;
+            Next_key_TextBox.Text = Properties.Settings.Default.next_key;
+
+            keyboardHook.KeyDown += new RamGecTools.KeyboardHook.KeyboardHookCallback(keyboardHook_KeyDown);
+            keyboardHook.Install();
         }
 
         // アカウント選択
@@ -85,6 +105,8 @@ namespace MyScreenshotAssistant2
 
                     Dispatcher.Invoke(() => { ProgressBar.Visibility = Visibility.Hidden; });
                 });
+
+                tokens = null;
                 return;
             }
 
@@ -99,21 +121,28 @@ namespace MyScreenshotAssistant2
             {
                 AccountIcon = await Dispatcher.InvokeAsync(() =>
                 {
-                    var wc = new WebClient { CachePolicy = new RequestCachePolicy(RequestCacheLevel.CacheIfAvailable) };
-                    try
+                    using (var wc = new WebClient { CachePolicy = new RequestCachePolicy(RequestCacheLevel.CacheIfAvailable) })
                     {
-                        var image = new BitmapImage();
-                        image.BeginInit();
-                        image.StreamSource = new MemoryStream(wc.DownloadData(tokens.Account.VerifyCredentials().ProfileImageUrlHttps.Replace("normal", "bigger")));
-                        image.EndInit();
-                        image.Freeze();
+                        try
+                        {
+                            var image = new BitmapImage();
+                            image.BeginInit();
+                            image.StreamSource = new MemoryStream(wc.DownloadData(tokens.Account.VerifyCredentials().ProfileImageUrlHttps.Replace("normal", "bigger")));
+                            image.EndInit();
+                            image.Freeze();
 
-                        return image;
-                    }
-                    catch (Exception)
-                    {
-                        wc.Dispose();
-                        return null;
+                            return image;
+                        }
+                        catch (Exception)
+                        {
+                            return null;
+                        }
+                        finally
+                        {
+                            wc.Dispose();
+
+                            Method.m_gc();
+                        }
                     }
                 }),
 
@@ -201,11 +230,11 @@ namespace MyScreenshotAssistant2
                 return;
             }
 
-            Title = SoftwareName + " - Status start" + version;
+            Title = SoftwareTitle + " - Status start" + version;
 
             Method.logfile("Info", "Assistant start.");
 
-            Tasktray_notify("info", "Assistant start");
+            Tasktray_notify("Info", "Assistant start");
         }
 
         // ディレクトリの監視を止める (メソッド)
@@ -215,11 +244,11 @@ namespace MyScreenshotAssistant2
             watcher.Dispose();
             watcher = null;
 
-            Title = SoftwareName + " - Status stop" + version;
+            Title = SoftwareTitle + " - Status stop" + version;
 
             Method.logfile("Info", "Assistant stop.");
 
-            Tasktray_notify("info", "Assistant stop");
+            Tasktray_notify("Info", "Assistant stop");
 
             notifyIcon1.Icon = Properties.Resources.warning;
         }
@@ -232,34 +261,49 @@ namespace MyScreenshotAssistant2
                 case WatcherChangeTypes.Created:
 
                     // ファイルサイズの確認(5MB)
-                    if (e.FullPath.Length < 5242880)
+                    if (e.FullPath.Length < 5120000)
                     {
                         try
                         {
                             await Dispatcher.InvokeAsync(() => { Tasktray_animation(); });
 
-                            if (!(bool)await Dispatcher.InvokeAsync(() => { return Mode_Button.IsChecked; }))
+                            if (Dispatcher.Invoke(() => { return Next_key_TextBox.Text; }) == next_key.ToString() && Images.Count < 3)
+                            {
+                                Images.Add(new FileStream(e.FullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+                                Tasktray_notify("Info", Images.Count + "枚目の処理が完了しました");
+
+                                IconFlag = false;
+                                break;
+                            }
+                            else
+                            {
+                                Images.Add(new FileStream(e.FullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+                            }
+
+                            if (!(bool)Dispatcher.Invoke(() => { return Mode_Button.IsChecked; }))
                             {
                                 Dispatcher.Invoke(() => { new TweetWindow().ShowDialog(); });
                                 if (TweetWindow.cancel_flag)
                                 {
+                                    Images.Clear();
                                     break;
                                 }
                             }
-                            MediaUploadResult file = tokens.Media.Upload(media: new FileStream(e.FullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
 
                             await tokens.Statuses.UpdateAsync(
-                                status: (Dispatcher.Invoke(() => { return Tweet_fixed_value_TextBox.Text.Replace(@"\n", "\n") + TweetWindow.value + Tweet_Hashtag_value_TextBox.Text.Replace(@"\n", "\n"); })),
-                                media_ids: new long[] { file.MediaId }
+                                status: Dispatcher.Invoke(() => { return Tweet_fixed_value_TextBox.Text.Replace(@"\n", "\n") + TweetWindow.value + Tweet_Hashtag_value_TextBox.Text.Replace(@"\n", "\n"); }),
+                                media_ids: Images.Select(x => tokens.Media.Upload(media: x).MediaId)
                             );
+
                             Method.logfile("Info", "Success tweet.");
                             TweetWindow.value = null;
+                            Images.Clear();
                         }
                         catch (Exception ex)
                         {
                             Method.logfile("Warning", ex.Message);
 
-                            Tasktray_notify("warning", "ツイートに失敗しました");
+                            Tasktray_notify("Warning", "ツイートに失敗しました");
                         }
                         finally
                         {
@@ -270,7 +314,7 @@ namespace MyScreenshotAssistant2
                     {
                         Method.logfile("Warning", "File size over 5MB " + e.FullPath);
 
-                        Tasktray_notify("warning", "ファイルサイズが5MBを超えています");
+                        Tasktray_notify("Warning", "ファイルサイズが5MBを超えています");
                     }
                     break;
             }
@@ -283,7 +327,7 @@ namespace MyScreenshotAssistant2
 
             Hide();
 
-            Tasktray_notify("info", "タスクトレイに常駐しています");
+            Tasktray_notify("Info", "タスクトレイに常駐しています");
         }
 
         // 終了処理
@@ -306,6 +350,7 @@ namespace MyScreenshotAssistant2
 
             Properties.Settings.Default.Tweet_fixed_value = Tweet_fixed_value_TextBox.Text;
             Properties.Settings.Default.Directory_name = Directory_name_ComboBox.Text;
+            Properties.Settings.Default.next_key = Next_key_TextBox.Text;
             Properties.Settings.Default.Save();
 
             // アカウント情報を保存
@@ -339,6 +384,8 @@ namespace MyScreenshotAssistant2
 
             notifyIcon1.Dispose();
 
+            keyboardHook.Uninstall();
+
             Environment.Exit(0);
         }
 
@@ -351,7 +398,7 @@ namespace MyScreenshotAssistant2
                 notifyIcon1.Text = Title;
                 notifyIcon1.Icon = Properties.Resources.warning;
 
-                notifyIcon1.BalloonTipTitle = SoftwareName;
+                notifyIcon1.BalloonTipTitle = SoftwareTitle;
 
                 notifyIcon1.Visible = true;
 
@@ -377,15 +424,15 @@ namespace MyScreenshotAssistant2
         // タスクトレイ通知
         private void Tasktray_notify(string level, string value)
         {
-            if (level == "info")
+            if (level == "Info")
             {
                 notifyIcon1.BalloonTipIcon = ToolTipIcon.Info;
             }
-            else if (level == "warning")
+            else if (level == "Warning")
             {
                 notifyIcon1.BalloonTipIcon = ToolTipIcon.Warning;
             }
-            else if (level == "error")
+            else if (level == "Error")
             {
                 notifyIcon1.BalloonTipIcon = ToolTipIcon.Error;
             }
@@ -437,11 +484,29 @@ namespace MyScreenshotAssistant2
                     bitmap.UriSource = new Uri(Directory_name_ComboBox.SelectedValue + "\\" + Method.getNewestFileName(Convert.ToString(Directory_name_ComboBox.SelectedValue)));
                     bitmap.EndInit();
                     bitmap.Freeze();
-                    
+
                     Preview_Image.ImageSource = bitmap;
                 }
-                catch (Exception) { }
+                catch (Exception)
+                {
+                    Preview_Image.ImageSource = null;
+                }
+                finally
+                {
+                    Method.m_gc();
+                }
             });
+        }
+
+        private void textBox1_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            e.Handled = true;
+            Next_key_TextBox.Text = next_key.ToString();
+        }
+
+        private void keyboardHook_KeyDown(RamGecTools.KeyboardHook.VKeys key)
+        {
+            next_key = key;
         }
     }
 }

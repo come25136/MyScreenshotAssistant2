@@ -16,10 +16,6 @@ namespace MyScreenshotAssistant2
                 // アップデート用jsonの取得
                 msajson = JsonConvert.DeserializeObject<Msajson>(new StreamReader(WebRequest.Create("https://msa.f5.si/update/update.json").GetResponse().GetResponseStream()).ReadToEnd());
 
-
-                Console.WriteLine(MainWindow.version);
-                Console.WriteLine(msajson.version);
-
                 if (System.Windows.Forms.Application.ProductVersion != msajson.version)
                 {
                     // アップデート通知ウィンドウ表示

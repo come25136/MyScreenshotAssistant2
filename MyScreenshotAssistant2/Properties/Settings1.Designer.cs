@@ -58,5 +58,29 @@ namespace MyScreenshotAssistant2.Properties {
                 this["Directory_name"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string next_key {
+            get {
+                return ((string)(this["next_key"]));
+            }
+            set {
+                this["next_key"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IsUpgrade {
+            get {
+                return ((bool)(this["IsUpgrade"]));
+            }
+            set {
+                this["IsUpgrade"] = value;
+            }
+        }
     }
 }

@@ -5,8 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MyScreenshotAssistant2"
         xmlns:extk="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
-        mc:Ignorable="d"
-        Title="MyScreenshotAssistant2 - Login" Height="209.11" Width="332.415" WindowStyle="ToolWindow" Background="White">
+        mc:Ignorable="d" Height="209.11" Width="332.415" WindowStyle="ToolWindow" Background="White">
     <Grid>
         <TextBox x:Name="OAuth_url_Textbox" Height="23" Margin="10,10,60,0" VerticalAlignment="Top" FontFamily="Meiryo UI" FontSize="14" IsReadOnly="True"/>
         <extk:WatermarkTextBox x:Name="OAuth_pin_Textbox" Margin="10,38,10,48" Watermark="PIN Code" FontFamily="Meiryo UI" FontSize="48" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" MaxLength="7" KeyDown="OAuth_pin_Textbox_KeyDown"/>

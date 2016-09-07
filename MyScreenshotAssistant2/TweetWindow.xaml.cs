@@ -15,6 +15,8 @@ namespace MyScreenshotAssistant2
 
         public TweetWindow()
         {
+            Title = MainWindow.SoftwareTitle + " - TweetWindow";
+
             InitializeComponent();
 
             Activate();

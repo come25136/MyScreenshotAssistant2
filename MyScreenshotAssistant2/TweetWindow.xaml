@@ -5,8 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:extk="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
         xmlns:local="clr-namespace:MyScreenshotAssistant2"
-        mc:Ignorable="d"
-        Title="MyScreenshotAssistant2 - TweetWindow" Height="240" Width="380" WindowStyle="ToolWindow" Closing="Window_Closing">
+        mc:Ignorable="d" Height="240" Width="380" WindowStyle="ToolWindow" Closing="Window_Closing">
     <Grid>
         <extk:WatermarkTextBox x:Name="Tweet_value_TextBox" TextWrapping="Wrap" FontFamily="Meiryo UI" Background="{x:Null}" BorderBrush="#E0E0E0E0" SelectionBrush="{x:Null}" Watermark="Tweets with Ctrl and Enter.&#xa;Cancel Pressing the Esc." TextDecorations="{x:Null}" KeyDown="Tweet_value_TextBox_KeyDown" AcceptsReturn="True" FontSize="14"/>
     </Grid>

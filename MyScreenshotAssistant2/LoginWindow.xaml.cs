@@ -15,6 +15,8 @@ namespace MyScreenshotAssistant2
 
         public LoginWindow()
         {
+            Title = MainWindow.SoftwareTitle + " - Login";
+
             InitializeComponent();
         }
 

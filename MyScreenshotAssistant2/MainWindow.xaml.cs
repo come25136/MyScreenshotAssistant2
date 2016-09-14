@@ -224,7 +224,7 @@ namespace MyScreenshotAssistant2
 
             Tasktray_notify("Info", "Assistant start");
         }
-        
+
         // ディレクトリの監視を止める (メソッド)
         private void watcher_stop()
         {
@@ -250,15 +250,15 @@ namespace MyScreenshotAssistant2
                     // ファイルサイズの確認(5MB)
                     if (e.FullPath.Length < 5120000)
                     {
-                        try
+                        await Task.Run(() =>
                         {
-                            await Task.Run(() =>
+                            try
                             {
                                 Tasktray_animation();
 
-                                if (Dispatcher.Invoke(() => { return Next_key_TextBox.Text; }) == next_key.ToString() && Images.Count < 3)
+                                try
                                 {
-                                    try
+                                    if (Dispatcher.Invoke(() => { return Next_key_TextBox.Text; }) == next_key.ToString() && Images.Count < 3)
                                     {
                                         Thread.Sleep(Dispatcher.Invoke(() => { return Convert.ToInt32(sleep_time.Text); }));
                                         Images.Add(new FileStream(e.FullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
@@ -266,17 +266,18 @@ namespace MyScreenshotAssistant2
 
                                         IconFlag = false;
                                         return;
+
                                     }
-                                    catch (Exception er)
+                                    else
                                     {
-                                        Tasktray_notify("Warning", Images.Count + "枚目の処理が正常に完了しませんでした");
-                                        Method.logfile("Warning", er.Message);
+                                        Thread.Sleep(Dispatcher.Invoke(() => { return Convert.ToInt32(sleep_time.Text); }));
+                                        Images.Add(new FileStream(e.FullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
                                     }
                                 }
-                                else
+                                catch (Exception er)
                                 {
-                                    Thread.Sleep(Dispatcher.Invoke(() => { return Convert.ToInt32(sleep_time.Text); }));
-                                    Images.Add(new FileStream(e.FullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+                                    Tasktray_notify("Warning", Images.Count + "枚目の処理が正常に完了しませんでした");
+                                    Method.logfile("Warning", er.Message);
                                 }
 
                                 if (!(bool)Dispatcher.Invoke(() => { return Mode_Button.IsChecked; }))
@@ -297,18 +298,19 @@ namespace MyScreenshotAssistant2
                                 Method.logfile("Info", "Success tweet.");
                                 TweetWindow.value = null;
                                 Images.Clear();
-                            });
-                        }
-                        catch (Exception er)
-                        {
-                            Method.logfile("Warning", er.Message);
 
-                            Tasktray_notify("Warning", "ツイートに失敗しました");
-                        }
-                        finally
-                        {
-                            IconFlag = false;
-                        }
+                            }
+                            catch (Exception er)
+                            {
+                                Method.logfile("Warning", er.Message);
+
+                                Tasktray_notify("Warning", "ツイートに失敗しました");
+                            }
+                            finally
+                            {
+                                IconFlag = false;
+                            }
+                        });
                     }
                     else
                     {
@@ -523,6 +525,18 @@ namespace MyScreenshotAssistant2
             });
         }
 
+        private void Tweet_fixed_value_TextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                try
+                {
+                    Method.DirectoryTable.Rows[Directory_name_ComboBox.SelectedIndex]["Tweet_fixed_value"] = Tweet_fixed_value_TextBox.Text;
+                }
+                catch { }
+            });
+        }
+
         private void Next_key_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             Dispatcher.Invoke(() =>
@@ -533,18 +547,6 @@ namespace MyScreenshotAssistant2
                 try
                 {
                     Method.DirectoryTable.Rows[Directory_name_ComboBox.SelectedIndex]["next_key"] = next_key.ToString();
-                }
-                catch { }
-            });
-        }
-
-        private void Tweet_fixed_value_TextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                try
-                {
-                    Method.DirectoryTable.Rows[Directory_name_ComboBox.SelectedIndex]["Tweet_fixed_value"] = Tweet_fixed_value_TextBox.Text;
                 }
                 catch { }
             });

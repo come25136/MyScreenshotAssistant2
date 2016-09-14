@@ -1,0 +1,12 @@
+﻿<Window x:Class="MyScreenshotAssistant2.TweetWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:extk="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
+        xmlns:local="clr-namespace:MyScreenshotAssistant2"
+        mc:Ignorable="d" Height="240" Width="380" WindowStyle="ToolWindow">
+    <Grid>
+        <extk:WatermarkTextBox x:Name="Tweet_value_TextBox" TextWrapping="Wrap" FontFamily="Meiryo UI" Background="{x:Null}" BorderBrush="#E0E0E0E0" SelectionBrush="{x:Null}" Watermark="Tweets with Ctrl and Enter.&#xa;Cancel Pressing the Esc." TextDecorations="{x:Null}" KeyDown="Tweet_value_TextBox_KeyDown" AcceptsReturn="True" FontSize="14"/>
+    </Grid>
+</Window>

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 
 namespace MyScreenshotAssistant2
 {
@@ -13,5 +7,8 @@ namespace MyScreenshotAssistant2
     /// </summary>
     public partial class App : Application
     {
+        public static string SoftwareName = System.Windows.Forms.Application.ProductName;
+        public static string version = System.Windows.Forms.Application.ProductVersion;
+        public static string SoftwareTitle = SoftwareName + " ver:" + version;
     }
 }

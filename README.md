@@ -13,7 +13,7 @@ namespace MyScreenshotAssistant2
 ```
 
 ## License
-GPT License
+GNU General Public License
 
 ## Library license
 ### [CoreTweet](https://github.com/CoreTweet/CoreTweet)

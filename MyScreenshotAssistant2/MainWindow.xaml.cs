@@ -24,14 +24,10 @@ namespace MyScreenshotAssistant2
         private NotifyIcon notifyIcon1;
         private Icon[] Icons = new Icon[] { Properties.Resources.connecting1, Properties.Resources.connecting2, Properties.Resources.connecting3, Properties.Resources.connecting4 };
 
-        public static string SoftwareName = System.Windows.Forms.Application.ProductName;
-        public static string SoftwareTitle = SoftwareName + " ver:" + version;
-        public static string version = System.Windows.Forms.Application.ProductVersion;
-
         private Tokens tokens = null;
         private List<FileStream> Images = new List<FileStream>();
 
-        private FileSystemWatcher watcher = null;
+        private FileSystemWatcher watcher = new FileSystemWatcher();
 
         private bool IconFlag = false;
 
@@ -42,24 +38,24 @@ namespace MyScreenshotAssistant2
         {
             InitializeComponent();
 
-            Title = Title + version;
+            Title = App.SoftwareTitle;
 
-            Tasktry();
+            Update.Start();
 
             Method.sql_login();
 
-            Update.Start();
+            Tasktry();
 
             // アカウントデータの復元
             Method.AccountAdapter = new SQLiteDataAdapter("SELECT * FROM Account", Method.database);
             Method.AccountAdapter.Fill(Method.AccountTable);
 
             Twitter_id.ItemsSource = Method.AccountTable.DefaultView;
-            Twitter_id.DisplayMemberPath = "UserId";
-            Twitter_id.SelectedValuePath = "UserId";
+            Twitter_id.DisplayMemberPath = "TwitterId";
+            Twitter_id.SelectedValuePath = "TwitterId";
 
             DataRow datarow = Method.AccountTable.NewRow();
-            datarow["UserId"] = "アカウントを追加";
+            datarow["TwitterId"] = "アカウントを追加";
             Method.AccountTable.Rows.InsertAt(datarow, 0);
 
             // ディレクトリデータの復元
@@ -72,19 +68,12 @@ namespace MyScreenshotAssistant2
 
             DirectoryData_DataGrid.ItemsSource = Method.DirectoryTable.DefaultView;
 
-            // ユーザーデータの引き継ぎ
-            if (Properties.Settings.Default.IsUpgrade == false)
-            {
-                Properties.Settings.Default.Upgrade();
-                Properties.Settings.Default.IsUpgrade = true;
-                Properties.Settings.Default.Save();
-            }
+            // user data
+            Method.ApplicationAdapter = new SQLiteDataAdapter("SELECT * FROM ApplicationData", Method.database);
+            Method.ApplicationAdapter.Fill(Method.ApplicationTable);
 
             // ユーザーデータの復元
-            Twitter_id.Text = Properties.Settings.Default.Twitter_id;
-            Tweet_fixed_value_TextBox.Text = Properties.Settings.Default.Tweet_fixed_value;
-            Directory_name_ComboBox.Text = Properties.Settings.Default.Directory_name;
-            Next_key_TextBox.Text = Properties.Settings.Default.next_key;
+            Twitter_id.Text = Method.ApplicationTable.Select("AppName = '" + App.SoftwareName + "'")[0][1].ToString();
 
             keyboardHook.KeyDown += new RamGecTools.KeyboardHook.KeyboardHookCallback(keyboardHook_KeyDown);
             keyboardHook.Install();
@@ -93,76 +82,70 @@ namespace MyScreenshotAssistant2
         // アカウント選択
         private async void Twitter_id_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            Dispatcher.Invoke(() => { ProgressBar.Visibility = Visibility.Visible; });
-
-            if (Dispatcher.Invoke(() => { return Twitter_id.SelectedValue.ToString(); }) == "アカウントを追加")
+            await Task.Run(() =>
             {
-                Dispatcher.Invoke(() =>
+                Dispatcher.Invoke(() => { ProgressBar.Visibility = Visibility.Visible; });
+
+                if (Dispatcher.Invoke(() => { return Twitter_id.SelectedValue.ToString(); }) == "アカウントを追加")
                 {
-                    LoginWindow LoginWindow = new LoginWindow();
-                    LoginWindow.OAuth_url();
-                    LoginWindow.ShowDialog();
-
-                    Dispatcher.Invoke(() => { ProgressBar.Visibility = Visibility.Hidden; });
-                });
-
-                tokens = null;
-                return;
-            }
-
-            Dispatcher.Invoke(() => { ProgressBar.Visibility = Visibility.Visible; });
-
-            var row = Twitter_id.SelectedIndex;
-
-            // Twitter API 認証情報
-            tokens = CoreTweet.Tokens.Create(API_Keys.consumerKey, API_Keys.cosumerSecret, Convert.ToString(Method.AccountTable.Rows[row]["AccessToken"]), Convert.ToString(Method.AccountTable.Rows[row]["AccessTokenSecret"]));
-
-            DataContext = new Person()
-            {
-                AccountIcon = await Dispatcher.InvokeAsync(() =>
-                {
-                    using (var wc = new WebClient { CachePolicy = new RequestCachePolicy(RequestCacheLevel.CacheIfAvailable) })
+                    Dispatcher.Invoke(() =>
                     {
-                        try
-                        {
-                            var image = new BitmapImage();
-                            image.BeginInit();
-                            image.StreamSource = new MemoryStream(wc.DownloadData(tokens.Account.VerifyCredentials().ProfileImageUrlHttps.Replace("normal", "bigger")));
-                            image.EndInit();
-                            image.Freeze();
+                        LoginWindow LoginWindow = new LoginWindow();
+                        LoginWindow.OAuth_url();
+                        LoginWindow.ShowDialog();
 
-                            return image;
-                        }
-                        catch (Exception)
-                        {
-                            return null;
-                        }
-                        finally
-                        {
-                            wc.Dispose();
+                        ProgressBar.Visibility = Visibility.Hidden;
 
-                            Method.m_gc();
-                        }
-                    }
-                }),
+                        tokens = null;
+                        Twitter_icon_Image.ImageSource = null;
+                        Twitter_name.Content = "アカウントを選択してください";
+                    });
 
-                AccountName = await Dispatcher.InvokeAsync(() =>
+                    return;
+                }
+
+                Dispatcher.Invoke(() => { Directory_name_ComboBox.Text = Method.AccountTable.Rows[Twitter_id.SelectedIndex]["Directory_name"].ToString(); });
+
+                var row = Dispatcher.Invoke(() => { return Twitter_id.SelectedIndex; });
+
+                // Twitter API 認証情報
+                tokens = Tokens.Create(API_Keys.consumerKey, API_Keys.cosumerSecret, Method.AccountTable.Rows[row]["AccessToken"].ToString(), Method.AccountTable.Rows[row]["AccessTokenSecret"].ToString());
+
+                using (var wc = new WebClient { CachePolicy = new RequestCachePolicy(RequestCacheLevel.CacheIfAvailable) })
                 {
                     try
                     {
-                        return tokens.Account.VerifyCredentials().Name;
+                        var image = new BitmapImage();
+                        image.BeginInit();
+                        image.StreamSource = new MemoryStream(wc.DownloadData(tokens.Account.VerifyCredentials().ProfileImageUrlHttps.Replace("normal", "bigger")));
+                        image.EndInit();
+                        image.Freeze();
+
+                        Dispatcher.Invoke(() => { Twitter_icon_Image.ImageSource = image; });
+                    }
+                    catch (Exception)
+                    {
+                        Dispatcher.Invoke(() => { Twitter_icon_Image.ImageSource = null; });
+                    }
+                }
+
+                Dispatcher.Invoke(() =>
+                {
+                    try
+                    {
+                        Twitter_name.Content = tokens.Account.VerifyCredentials().Name;
                     }
                     catch (TwitterException)
                     {
                         Method.message("Twitter認証エラー", "Twitterへの認証回数が上限に達しました、しばらくしてから再度お試しください");
                         Method.logfile("Warning", "Rate limit exceeded.");
 
-                        return null;
+                        Twitter_name.Content = null;
                     }
-                })
-            };
 
-            Dispatcher.Invoke(() => { ProgressBar.Visibility = Visibility.Hidden; });
+                    ProgressBar.Visibility = Visibility.Hidden;
+                });
+            });
         }
 
         // Start, Stopボタン
@@ -190,7 +173,7 @@ namespace MyScreenshotAssistant2
 
             try
             {
-                if (Convert.ToString(Directory_name_ComboBox.SelectedValue) == "-1")
+                if (Directory_name_ComboBox.SelectedValue.ToString() == string.Empty)
                 {
                     Tweet_Button.IsChecked = false;
                     Method.message("Error", "ディレクトリが記入されていません");
@@ -205,10 +188,16 @@ namespace MyScreenshotAssistant2
                 return;
             }
 
+            if (sleep_time.Text == string.Empty)
+            {
+                Tweet_Button.IsChecked = false;
+                Method.message("Error", "スクリーンショット検知からツイートまでの待機時間が指定されていません");
+                return;
+            }
+
             try
             {
-                watcher = new FileSystemWatcher();
-                watcher.Path = Convert.ToString(Directory_name_ComboBox.SelectedValue);
+                watcher.Path = Directory_name_ComboBox.SelectedValue.ToString();
                 watcher.NotifyFilter =
                     (NotifyFilters.LastAccess
                     | NotifyFilters.LastWrite
@@ -226,25 +215,23 @@ namespace MyScreenshotAssistant2
             {
                 Tweet_Button.IsChecked = false;
                 Method.message("Error", "ディレクトリが存在しません");
-                watcher = null;
                 return;
             }
 
-            Title = SoftwareTitle + " - Status start" + version;
+            Title = App.SoftwareTitle + " - Status start";
 
             Method.logfile("Info", "Assistant start.");
 
             Tasktray_notify("Info", "Assistant start");
         }
-
+        
         // ディレクトリの監視を止める (メソッド)
         private void watcher_stop()
         {
             watcher.EnableRaisingEvents = false;
             watcher.Dispose();
-            watcher = null;
 
-            Title = SoftwareTitle + " - Status stop" + version;
+            Title = App.SoftwareTitle + " - Status stop";
 
             Method.logfile("Info", "Assistant stop.");
 
@@ -265,43 +252,56 @@ namespace MyScreenshotAssistant2
                     {
                         try
                         {
-                            await Dispatcher.InvokeAsync(() => { Tasktray_animation(); });
-
-                            if (Dispatcher.Invoke(() => { return Next_key_TextBox.Text; }) == next_key.ToString() && Images.Count < 3)
+                            await Task.Run(() =>
                             {
-                                Images.Add(new FileStream(e.FullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
-                                Tasktray_notify("Info", Images.Count + "枚目の処理が完了しました");
+                                Tasktray_animation();
 
-                                IconFlag = false;
-                                break;
-                            }
-                            else
-                            {
-                                Images.Add(new FileStream(e.FullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
-                            }
-
-                            if (!(bool)Dispatcher.Invoke(() => { return Mode_Button.IsChecked; }))
-                            {
-                                Dispatcher.Invoke(() => { new TweetWindow().ShowDialog(); });
-                                if (TweetWindow.cancel_flag)
+                                if (Dispatcher.Invoke(() => { return Next_key_TextBox.Text; }) == next_key.ToString() && Images.Count < 3)
                                 {
-                                    Images.Clear();
-                                    break;
+                                    try
+                                    {
+                                        Thread.Sleep(Dispatcher.Invoke(() => { return Convert.ToInt32(sleep_time.Text); }));
+                                        Images.Add(new FileStream(e.FullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+                                        Tasktray_notify("Info", Images.Count + "枚目の処理が完了しました");
+
+                                        IconFlag = false;
+                                        return;
+                                    }
+                                    catch (Exception er)
+                                    {
+                                        Tasktray_notify("Warning", Images.Count + "枚目の処理が正常に完了しませんでした");
+                                        Method.logfile("Warning", er.Message);
+                                    }
                                 }
-                            }
+                                else
+                                {
+                                    Thread.Sleep(Dispatcher.Invoke(() => { return Convert.ToInt32(sleep_time.Text); }));
+                                    Images.Add(new FileStream(e.FullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+                                }
 
-                            await tokens.Statuses.UpdateAsync(
-                                status: Dispatcher.Invoke(() => { return Tweet_fixed_value_TextBox.Text.Replace(@"\n", "\n") + TweetWindow.value + Tweet_Hashtag_value_TextBox.Text.Replace(@"\n", "\n"); }),
-                                media_ids: Images.Select(x => tokens.Media.Upload(media: x).MediaId)
-                            );
+                                if (!(bool)Dispatcher.Invoke(() => { return Mode_Button.IsChecked; }))
+                                {
+                                    Dispatcher.Invoke(() => { new TweetWindow().ShowDialog(); });
+                                    if (TweetWindow.cancel_flag)
+                                    {
+                                        Images.Clear();
+                                        return;
+                                    }
+                                }
 
-                            Method.logfile("Info", "Success tweet.");
-                            TweetWindow.value = null;
-                            Images.Clear();
+                                tokens.Statuses.Update(
+                                    status: Dispatcher.Invoke(() => { return Tweet_fixed_value_TextBox.Text.Replace(@"\n", "\n") + TweetWindow.value + " " + Tweet_Hashtag_value_TextBox.Text.Replace(@"\n", "\n"); }),
+                                    media_ids: Images.Select(x => tokens.Media.Upload(media: x).MediaId)
+                                );
+
+                                Method.logfile("Info", "Success tweet.");
+                                TweetWindow.value = null;
+                                Images.Clear();
+                            });
                         }
-                        catch (Exception ex)
+                        catch (Exception er)
                         {
-                            Method.logfile("Warning", ex.Message);
+                            Method.logfile("Warning", er.Message);
 
                             Tasktray_notify("Warning", "ツイートに失敗しました");
                         }
@@ -342,24 +342,12 @@ namespace MyScreenshotAssistant2
                 Method.logfile("Info", "Assistant stop.");
             }
 
-            // ユーザーデータを保存
-            if (Twitter_id.Text != "アカウントを追加")
-            {
-                Properties.Settings.Default.Twitter_id = Twitter_id.Text;
-            }
-
-            Properties.Settings.Default.Tweet_fixed_value = Tweet_fixed_value_TextBox.Text;
-            Properties.Settings.Default.Directory_name = Directory_name_ComboBox.Text;
-            Properties.Settings.Default.next_key = Next_key_TextBox.Text;
-            Properties.Settings.Default.Save();
-
             // アカウント情報を保存
             try
             {
                 Method.AccountTable.Rows.RemoveAt(0);
 
-                SQLiteCommandBuilder builder = new SQLiteCommandBuilder(Method.AccountAdapter);
-                builder.GetUpdateCommand();
+                new SQLiteCommandBuilder(Method.AccountAdapter).GetUpdateCommand();
 
                 Method.AccountAdapter.Update(Method.AccountTable);
             }
@@ -368,13 +356,28 @@ namespace MyScreenshotAssistant2
             // ディレクトリデータを保存
             try
             {
-                SQLiteCommandBuilder builder2 = new SQLiteCommandBuilder(Method.DirectoryAdapter);
-                builder2.GetUpdateCommand();
+                new SQLiteCommandBuilder(Method.DirectoryAdapter).GetUpdateCommand();
 
                 Method.DirectoryAdapter.Update(Method.DirectoryTable);
             }
-            catch (Exception) { }
+            catch (Exception)
+            {
+                Method.message("Warning", "同じディレクトリ設定が存在します");
+                return;
+            }
 
+            // アプリケーションデータを保存
+            try
+            {
+                Method.ApplicationTable.Select("AppName = '" + App.SoftwareName + "'")[0][1] = Dispatcher.Invoke(() => { return Twitter_id.SelectedValue.ToString(); });
+
+                Console.WriteLine(new SQLiteCommandBuilder(Method.DirectoryAdapter).GetUpdateCommand().CommandText);
+
+                new SQLiteCommandBuilder(Method.ApplicationAdapter).GetUpdateCommand();
+
+                Method.ApplicationAdapter.Update(Method.ApplicationTable);
+            }
+            catch (Exception) { }
 
             Method.database.Close();
 
@@ -398,7 +401,7 @@ namespace MyScreenshotAssistant2
                 notifyIcon1.Text = Title;
                 notifyIcon1.Icon = Properties.Resources.warning;
 
-                notifyIcon1.BalloonTipTitle = SoftwareTitle;
+                notifyIcon1.BalloonTipTitle = App.SoftwareTitle;
 
                 notifyIcon1.Visible = true;
 
@@ -475,38 +478,93 @@ namespace MyScreenshotAssistant2
 
         private async void Directory_name_ComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            await Dispatcher.InvokeAsync(() =>
+            await Task.Run(() =>
             {
                 try
                 {
-                    var bitmap = new BitmapImage();
-                    bitmap.BeginInit();
-                    bitmap.UriSource = new Uri(Directory_name_ComboBox.SelectedValue + "\\" + Method.getNewestFileName(Convert.ToString(Directory_name_ComboBox.SelectedValue)));
-                    bitmap.EndInit();
-                    bitmap.Freeze();
+                    var dncsv = Dispatcher.Invoke(() => { try { return Directory_name_ComboBox.SelectedValue.ToString(); } catch { return null; } });
 
-                    Preview_Image.ImageSource = bitmap;
+                    if (dncsv != null)
+                    {
+                        var bitmap = new BitmapImage();
+                        bitmap.BeginInit();
+                        bitmap.UriSource = new Uri(dncsv + "\\" + Method.getNewestFileName(dncsv));
+                        bitmap.EndInit();
+                        bitmap.Freeze();
+
+                        Dispatcher.Invoke(() => { Preview_Image.ImageSource = bitmap; });
+                    }
+                    else
+                    {
+                        Dispatcher.Invoke(() => { Preview_Image.ImageSource = null; });
+                    }
                 }
                 catch (Exception)
                 {
-                    Preview_Image.ImageSource = null;
-                }
-                finally
-                {
                     Method.m_gc();
                 }
+
+                Dispatcher.Invoke(() =>
+                {
+                    if (Directory_name_ComboBox.SelectedIndex < Method.DirectoryTable.Rows.Count)
+                    {
+                        Method.AccountTable.Rows[Twitter_id.SelectedIndex]["Directory_name"] = Directory_name_ComboBox.Text;
+
+                        Tweet_fixed_value_TextBox.Text = Method.DirectoryTable.Rows[Directory_name_ComboBox.SelectedIndex]["Tweet_fixed_value"].ToString();
+                        Next_key_TextBox.Text = Method.DirectoryTable.Rows[Directory_name_ComboBox.SelectedIndex]["next_key"].ToString();
+                        sleep_time.Text = Method.DirectoryTable.Rows[Directory_name_ComboBox.SelectedIndex]["sleep_time"].ToString();
+                    }
+                    else
+                    {
+                        Tweet_fixed_value_TextBox.Text = null;
+                        Next_key_TextBox.Text = null;
+                    }
+                });
             });
         }
 
-        private void textBox1_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        private void Next_key_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            e.Handled = true;
-            Next_key_TextBox.Text = next_key.ToString();
+            Dispatcher.Invoke(() =>
+            {
+                e.Handled = true;
+                Next_key_TextBox.Text = next_key.ToString();
+
+                try
+                {
+                    Method.DirectoryTable.Rows[Directory_name_ComboBox.SelectedIndex]["next_key"] = next_key.ToString();
+                }
+                catch { }
+            });
+        }
+
+        private void Tweet_fixed_value_TextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                try
+                {
+                    Method.DirectoryTable.Rows[Directory_name_ComboBox.SelectedIndex]["Tweet_fixed_value"] = Tweet_fixed_value_TextBox.Text;
+                }
+                catch { }
+            });
         }
 
         private void keyboardHook_KeyDown(RamGecTools.KeyboardHook.VKeys key)
         {
             next_key = key;
+        }
+
+        private void sleep_time_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                try
+                {
+                    Method.DirectoryTable.Rows[Directory_name_ComboBox.SelectedIndex]["sleep_time"] = Dispatcher.Invoke(() => { return sleep_time.Text; });
+                }
+                catch { }
+            });
         }
     }
 }

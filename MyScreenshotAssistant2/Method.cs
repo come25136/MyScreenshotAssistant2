@@ -11,9 +11,11 @@ namespace MyScreenshotAssistant2
     {
         public static DataTable DirectoryTable = new DataTable();
         public static DataTable AccountTable = new DataTable();
+        public static DataTable ApplicationTable = new DataTable();
 
         public static SQLiteDataAdapter AccountAdapter;
         public static SQLiteDataAdapter DirectoryAdapter;
+        public static SQLiteDataAdapter ApplicationAdapter;
 
         public static SQLiteConnection database = new SQLiteConnection("Data Source=msa.db");
         public static SQLiteCommand statement = null;
@@ -61,8 +63,11 @@ namespace MyScreenshotAssistant2
 
                 statement = database.CreateCommand();
 
-                sql("create table if not exists Account (UserId string primary key, AccessToken string, AccessTokenSecret string)");
-                sql("create table if not exists DirectoryData (name string, path string primary key)");
+                sql("create table if not exists Account (TwitterId string primary key, AccessToken string, AccessTokenSecret string, Directory_name string)");
+                sql("create table if not exists DirectoryData (name string, path string primary key, Tweet_fixed_value string, next_key string, sleep_time int)");
+                sql("create table if not exists ApplicationData (AppName string primary key, TwitterId string)");
+
+                sql("INSERT INTO ApplicationData (AppName) SELECT '" + App.SoftwareName + "' WHERE NOT EXISTS ( SELECT AppName FROM ApplicationData WHERE AppName = '" + App.SoftwareName + "');");
             }
             catch (Exception)
             {

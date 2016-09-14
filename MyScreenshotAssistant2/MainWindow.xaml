@@ -562,15 +562,15 @@
 						</Border.Background>
 					</Border>
 
-					<ComboBox Margin="0,10,10,0" x:Name="Twitter_id" VerticalAlignment="Top" Height="26" ItemsSource="{Binding}" RenderTransformOrigin="0.5,0.5" VerticalContentAlignment="Center" Padding="3,1" FontSize="16" FontWeight="Thin" SelectionChanged="Twitter_id_SelectionChanged" Width="142" HorizontalAlignment="Right"/>
-					<extk:WatermarkTextBox x:Name="Tweet_fixed_value_TextBox" Height="33" Margin="90,41,10,0" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="18" FontFamily="Meiryo UI" Background="{x:Null}" BorderBrush="#FF999999" SelectionBrush="{x:Null}" Watermark="Tweets content (fixed)" TextDecorations="{x:Null}" VerticalContentAlignment="Center" BorderThickness="0,0,0,1" Padding="3"/>
+					<ComboBox Margin="0,10,10,0" x:Name="Twitter_id" VerticalAlignment="Top" Height="26" RenderTransformOrigin="0.5,0.5" VerticalContentAlignment="Center" Padding="3,1" FontSize="16" FontWeight="Thin" SelectionChanged="Twitter_id_SelectionChanged" Width="142" HorizontalAlignment="Right"/>
+					<extk:WatermarkTextBox x:Name="Tweet_fixed_value_TextBox" Height="33" Margin="90,41,10,0" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="18" FontFamily="Meiryo UI" Background="{x:Null}" BorderBrush="#FF999999" SelectionBrush="{x:Null}" Watermark="Tweets content (fixed)" TextDecorations="{x:Null}" VerticalContentAlignment="Center" BorderThickness="0,0,0,1" Padding="3" TextChanged="Tweet_fixed_value_TextBox_TextChanged"/>
 					<Border Margin="10,84,10,7" CornerRadius="10">
 						<Border.Background>
 							<ImageBrush x:Name="Preview_Image" Stretch="Uniform"/>
 						</Border.Background>
 					</Border>
 
-					<extk:WatermarkTextBox x:Name="Tweet_Hashtag_value_TextBox" Height="42" Margin="10,0,144,10" TextWrapping="Wrap" VerticalAlignment="Bottom" FontSize="18" FontFamily="Meiryo UI" Background="{x:Null}" BorderBrush="#FF999999" SelectionBrush="{x:Null}" Watermark="#hashtag" TextDecorations="{x:Null}" Grid.Row="1" VerticalContentAlignment="Center" BorderThickness="0,0,0,1"/>
+					<extk:WatermarkTextBox x:Name="Tweet_Hashtag_value_TextBox" Margin="10,0,144,10" TextWrapping="Wrap" FontSize="18" FontFamily="Meiryo UI" Background="{x:Null}" BorderBrush="#FF999999" SelectionBrush="{x:Null}" Watermark="#hashtag" TextDecorations="{x:Null}" Grid.Row="1" VerticalContentAlignment="Center" BorderThickness="0,0,0,1" Height="42" VerticalAlignment="Bottom"/>
 
 					<ToggleButton x:Name="Tweet_Button" Style="{StaticResource Tweet_Button}" Margin="0,0,10,10" Background="#FFA5E2FF" Click="Tweet_Button_Click" Grid.Row="1" HorizontalAlignment="Right" Width="112" Height="42" VerticalAlignment="Bottom"/>
 
@@ -578,7 +578,7 @@
 
 					<ComboBox x:Name="Directory_name_ComboBox" Margin="10,0,144,10" Height="26" VerticalAlignment="Bottom" Grid.Row="2" SelectionChanged="Directory_name_ComboBox_SelectionChanged"/>
 					<ToggleButton x:Name="Mode_Button" Style="{StaticResource Mode_Button}" Margin="0,0,10,10" Background="#FFF0F0F0" Grid.Row="2" HorizontalAlignment="Right" Width="112" Height="27" VerticalAlignment="Bottom"/>
-					<Label x:Name="Twitter_name" Height="26" Margin="90,10,157,0" VerticalAlignment="Top" FontSize="16" VerticalContentAlignment="Center" Width="auto" Content="{Binding AccountName}" Background="{x:Null}" BorderBrush="{x:Null}" Padding="2" FontWeight="Bold" />
+					<Label x:Name="Twitter_name" Height="26" Margin="90,10,157,0" VerticalAlignment="Top" FontSize="16" VerticalContentAlignment="Center" Width="auto" Background="{x:Null}" BorderBrush="{x:Null}" Padding="2" FontWeight="Bold" />
 
 				</Grid>
 			</TabItem>
@@ -595,13 +595,19 @@
 			<TabItem Header="ショートカットキー" Margin="-1,-2,-1,0" Background="White" Foreground="Black">
 				<Grid>
 					<Label x:Name="label" Content="2枚以上の画像を撮る時に使うキー" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="16" VerticalContentAlignment="Center"/>
-					<extk:WatermarkTextBox x:Name="Next_key_TextBox" TextWrapping="Wrap" Margin="244,10,143,437" FontSize="14" VerticalContentAlignment="Center" BorderThickness="0,0,0,1" BorderBrush="#FF999999" KeyDown="textBox1_KeyDown" IsReadOnlyCaretVisible="True" Watermark="Press key" Text="LSHIFT"/>
-					<Label x:Name="label1" Content="※スクリーンショットを撮るボタンを押した直後に押してください" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" Background="White" Foreground="#FF4BA4D6" FontSize="16" FontFamily="Meiryo UI" Height="32" Width="386"/>
+					<extk:WatermarkTextBox x:Name="Next_key_TextBox" TextWrapping="Wrap" Margin="244,10,0,437" FontSize="14" VerticalContentAlignment="Center" BorderThickness="0,0,0,1" BorderBrush="#FF999999" KeyDown="Next_key_KeyDown" IsReadOnlyCaretVisible="True" Watermark="Press key" HorizontalAlignment="Left" Width="126"/>
+					<Label x:Name="label1" Content="※スクリーンショットを撮るボタンを押した直後に押してください" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" Background="White" Foreground="#FF4BA4D6" FontSize="16" FontFamily="Meiryo UI" Height="32" Width="386" Padding="5"/>
+				</Grid>
+			</TabItem>
+			<TabItem Header="設定" Margin="-1,-2,-1,0" Background="White" Foreground="Black">
+				<Grid>
+					<Label x:Name="label2" Content="スクリーンショット検知からツイートまでの待機時間 (ミリ秒)" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="16" Width="364" Padding="0,5,5,5"/>
+					<TextBox x:Name="sleep_time" Height="31" Margin="379,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="16" VerticalContentAlignment="Center" BorderThickness="0,0,0,1" BorderBrush="#FF999999" TextChanged="sleep_time_TextChanged" Text="0" HorizontalAlignment="Left" Width="120"/>
 				</Grid>
 			</TabItem>
 			<TabItem Header="ライセンス" Margin="-1,-2,-1,0" Background="White" Foreground="Black">
 				<Grid>
-					<TextBox x:Name="textBox" TextWrapping="Wrap" Text="License&#xA;&#xA;GPT License&#xA;------&#xA;Library license&#xA;&#xA;CoreTweet&#xA;&#xA;MIT License (MIT)&#xA;&#xA;CoreTweet - A .NET Twitter Library supporting Twitter API 1.1&#xA;copyright (c) 2013-2016 CoreTweet Development Team&#xA;https://github.com/CoreTweet/CoreTweet/blob/master/LICENSE&#xA;&#xA;Entity Framework 6.x&#xA;&#xA;Apache 2.0&#xA;&#xA;Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. Microsoft Open Technologies would like to thank its contributors, a list of whom are at https://aspnetwebstack.codeplex.com/wikipage?title=Contributors.Entity Framework is actively developed by the Entity Framework team in collaboration with a community of open source developers. Together we are dedicated to creating the best possible data access experience for .NET developers.&#xA;https://github.com/aspnet/EntityFramework6/blob/master/License.txt&#xA;&#xA;Extended WPF Toolkit&#xA;&#xA;Microsoft Public License (Ms-PL)&#xA;https://wpftoolkit.codeplex.com/license&#xA;&#xA;KeyboardMouseHooks C# Library&#xA;&#xA;MIT License (MIT)&#xA;&#xA;Copyright (c) 2011 Ramunas Geciauskas&#xA;https://keyboardmousehooks.codeplex.com/license&#xA;&#xA;Newtonsoft.Json&#xA;&#xA;MIT License (MIT)&#xA;&#xA;Copyright (c) 2007 James Newton-King&#xA;https://github.com/JamesNK/Newtonsoft.Json/blob/master/LICENSE&#xA;&#xA;SQLite&#xA;&#xA;Public License&#xA;https://www.sqlite.org/copyright.html&#xA;&#xA;SQLite Core&#xA;&#xA;Public License&#xA;https://www.sqlite.org/copyright.html&#xA;&#xA;SQLite EF6&#xA;&#xA;Public License&#xA;https://www.sqlite.org/copyright.html&#xA;&#xA;SQLite LINQ&#xA;&#xA;Public License&#xA;https://www.sqlite.org/copyright.html" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" FontSize="14" TextDecorations="{x:Null}" FontFamily="Segoe UI" IsReadOnly="True" BorderThickness="0" Margin="0" SelectionOpacity="-2"/>
+					<TextBox x:Name="textBox" TextWrapping="Wrap" Text="License&#xA;&#xA;GPT License&#xA;&#xA;copyright (c) 2016 @come25136&#xA;------&#xA;Library license&#xA;&#xA;CoreTweet&#xA;&#xA;MIT License (MIT)&#xA;&#xA;CoreTweet - A .NET Twitter Library supporting Twitter API 1.1&#xA;copyright (c) 2013-2016 CoreTweet Development Team&#xA;https://github.com/CoreTweet/CoreTweet/blob/master/LICENSE&#xA;&#xA;Entity Framework 6.x&#xA;&#xA;Apache 2.0&#xA;&#xA;Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. Microsoft Open Technologies would like to thank its contributors, a list of whom are at https://aspnetwebstack.codeplex.com/wikipage?title=Contributors.Entity Framework is actively developed by the Entity Framework team in collaboration with a community of open source developers. Together we are dedicated to creating the best possible data access experience for .NET developers.&#xA;https://github.com/aspnet/EntityFramework6/blob/master/License.txt&#xA;&#xA;Extended WPF Toolkit&#xA;&#xA;Microsoft Public License (Ms-PL)&#xA;https://wpftoolkit.codeplex.com/license&#xA;&#xA;KeyboardMouseHooks C# Library&#xA;&#xA;MIT License (MIT)&#xA;&#xA;Copyright (c) 2011 Ramunas Geciauskas&#xA;https://keyboardmousehooks.codeplex.com/license&#xA;&#xA;Newtonsoft.Json&#xA;&#xA;MIT License (MIT)&#xA;&#xA;Copyright (c) 2007 James Newton-King&#xA;https://github.com/JamesNK/Newtonsoft.Json/blob/master/LICENSE&#xA;&#xA;SQLite&#xA;&#xA;Public License&#xA;https://www.sqlite.org/copyright.html&#xA;&#xA;SQLite Core&#xA;&#xA;Public License&#xA;https://www.sqlite.org/copyright.html&#xA;&#xA;SQLite EF6&#xA;&#xA;Public License&#xA;https://www.sqlite.org/copyright.html&#xA;&#xA;SQLite LINQ&#xA;&#xA;Public License&#xA;https://www.sqlite.org/copyright.html" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" FontSize="14" TextDecorations="{x:Null}" FontFamily="Segoe UI" IsReadOnly="True" BorderThickness="0" Margin="0" SelectionOpacity="-2"/>
 				</Grid>
 			</TabItem>
 		</TabControl>

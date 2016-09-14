@@ -11,11 +11,9 @@ namespace MyScreenshotAssistant2
         {
             InitializeComponent();
 
-            DataContext = new update()
-            {
-                new_version = Update.msajson.version,
-                current_version = MainWindow.version
-            };
+
+            New_version_Label.Content = Update.msajson.version;
+            Current_version_Label.Content = App.version;
         }
 
         private void button_Click(object sender, RoutedEventArgs e)

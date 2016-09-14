@@ -10,12 +10,11 @@ namespace MyScreenshotAssistant2
     public partial class TweetWindow : Window
     {
         public static string value;
-        public static bool cancel_flag = false;
-        private bool close_flag;
+        public static bool cancel_flag = true;
 
         public TweetWindow()
         {
-            Title = MainWindow.SoftwareTitle + " - TweetWindow";
+            Title = App.SoftwareTitle + " - TweetWindow";
 
             InitializeComponent();
 
@@ -32,22 +31,12 @@ namespace MyScreenshotAssistant2
             if (Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.Enter))
             {
                 value = '\n' + Tweet_value_TextBox.Text;
-                close_flag = false;
                 cancel_flag = false;
                 Close();
             }
             else if (Keyboard.IsKeyDown(Key.Escape))
             {
-                cancel_flag = true;
                 Close();
-            }
-        }
-
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            if (close_flag == true)
-            {
-                cancel_flag = true;
             }
         }
     }

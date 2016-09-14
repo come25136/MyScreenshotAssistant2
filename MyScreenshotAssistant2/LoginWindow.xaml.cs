@@ -15,7 +15,7 @@ namespace MyScreenshotAssistant2
 
         public LoginWindow()
         {
-            Title = MainWindow.SoftwareTitle + " - Login";
+            Title = App.SoftwareTitle + " - Login";
 
             InitializeComponent();
         }
@@ -63,7 +63,7 @@ namespace MyScreenshotAssistant2
 
                     DataRow datarow = Method.AccountTable.NewRow();
 
-                    datarow["UserId"] = info.Account.VerifyCredentials().ScreenName;
+                    datarow["TwitterId"] = info.Account.VerifyCredentials().ScreenName;
                     datarow["AccessToken"] = tokens.AccessToken;
                     datarow["AccessTokenSecret"] = tokens.AccessTokenSecret;
                     Method.AccountTable.Rows.Add(datarow);
